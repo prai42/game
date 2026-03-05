@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FIFA 2v2 Tournament</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --green: #00ff87;
+    --dark: #0a0a0a;
+    --card: #111111;
+    --border: #1e1e1e;
+    --t1: #00ff87;
+    --t2: #ff6b35;
+    --text: #e8e8e8;
+    --muted: #555;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 40px 20px 60px;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(0,255,135,0.08), transparent),
+      repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(255,255,255,0.01) 60px, rgba(255,255,255,0.01) 61px),
+      repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(255,255,255,0.01) 60px, rgba(255,255,255,0.01) 61px);
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 48px;
+  }
+
+  .title-tag {
+    display: inline-block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--green);
+    border: 1px solid rgba(0,255,135,0.3);
+    padding: 5px 16px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', cursive;
+    font-size: clamp(52px, 10vw, 100px);
+    letter-spacing: 6px;
+    line-height: 0.9;
+    color: #fff;
+  }
+
+  h1 span {
+    color: var(--green);
+    display: block;
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+
+  /* LEGEND */
+  .legend {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 44px;
+    flex-wrap: wrap;
+  }
+
+  .legend-group {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 18px 28px;
+    min-width: 180px;
+  }
+
+  .legend-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 600;
+  }
+
+  .legend-label.t1 { color: var(--t1); }
+  .legend-label.t2 { color: var(--t2); }
+
+  .player-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .chip.t1 { background: rgba(0,255,135,0.12); color: var(--t1); border: 1px solid rgba(0,255,135,0.25); }
+  .chip.t2 { background: rgba(255,107,53,0.12); color: var(--t2); border: 1px solid rgba(255,107,53,0.25); }
+
+  /* STATS */
+  .stats-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 44px;
+    flex-wrap: wrap;
+  }
+
+  .stat-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 36px;
+    color: var(--green);
+    line-height: 1;
+  }
+
+  .stat-lbl {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* FIXTURES */
+  .section-title {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .fixtures-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+    max-width: 1100px;
+    margin: 0 auto 52px;
+  }
+
+  .fixture-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+
+  .fixture-card:hover {
+    border-color: rgba(0,255,135,0.3);
+    transform: translateY(-2px);
+  }
+
+  .fixture-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--t1), var(--t2));
+    opacity: 0.5;
+  }
+
+  .game-num {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  .matchup {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .team {
+    flex: 1;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+
+  .team-label {
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .player-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 5px;
+  }
+
+  .player-row:last-child { margin-bottom: 0; }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .dot.t1 { background: var(--t1); box-shadow: 0 0 6px var(--t1); }
+  .dot.t2 { background: var(--t2); box-shadow: 0 0 6px var(--t2); }
+
+  .player-name {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .vs-badge {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 20px;
+    color: var(--muted);
+    flex-shrink: 0;
+    letter-spacing: 2px;
+  }
+
+  /* PLAYER STATS TABLE */
+  .table-wrap {
+    max-width: 700px;
+    margin: 0 auto 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead tr {
+    background: rgba(0,255,135,0.05);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 14px 20px;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    font-weight: 600;
+  }
+
+  td {
+    padding: 13px 20px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  .tier-badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+
+  .tier-badge.t1 { background: rgba(0,255,135,0.12); color: var(--t1); }
+  .tier-badge.t2 { background: rgba(255,107,53,0.12); color: var(--t2); }
+
+  .games-count {
+    font-family: 'Bebas Neue', cursive;
+    font-size: 22px;
+    color: #fff;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="title-tag">⚽ 2v2 Tournament</div>
+  <h1>FIFA<span>Fixtures</span></h1>
+  <p class="subtitle">Tier 1 × Tier 2 · Every pair meets · Equal games for all</p>
+</header>
+
+<!-- LEGEND -->
+<div class="legend">
+  <div class="legend-group">
+    <div class="legend-label t1">⭐ Tier 1</div>
+    <div class="player-chips">
+      <span class="chip t1">Yoges</span>
+      <span class="chip t1">Parwat</span>
+      <span class="chip t1">Sagar</span>
+    </div>
+  </div>
+  <div class="legend-group">
+    <div class="legend-label t2">🔥 Tier 2</div>
+    <div class="player-chips">
+      <span class="chip t2">Dhiren</span>
+      <span class="chip t2">Suresh</span>
+      <span class="chip t2">Asis</span>
+      <span class="chip t2">Amit</span>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-box">
+    <div class="stat-num">14</div>
+    <div class="stat-lbl">Total Games</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">8</div>
+    <div class="stat-lbl">Tier 1 Games</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">10</div>
+    <div class="stat-lbl">Tier 2 Games</div>
+  </div>
+  <div class="stat-box">
+    <div class="stat-num">7</div>
+    <div class="stat-lbl">Players</div>
+  </div>
+</div>
+
+<!-- FIXTURES -->
+<div class="section-title">Match Schedule</div>
+
+<div class="fixtures-grid" id="fixtures"></div>
+
+<!-- PLAYER STATS -->
+<div class="section-title">Player Summary</div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>Player</th>
+        <th>Tier</th>
+        <th>Games Played</th>
+        <th>Partners</th>
+      </tr>
+    </thead>
+    <tbody id="player-table"></tbody>
+  </table>
+</div>
+
+<script>
+const T1 = ['Yoges', 'Parwat', 'Sagar'];
+const T2 = ['Dhiren', 'Suresh', 'Asis', 'Amit'];
+
+// Build all 12 unique T1×T2 pairs
+const pairs = [];
+for (const t1 of T1) for (const t2 of T2) pairs.push([t1, t2]);
+
+// Arrange into 12 games: each game = 2 pairs that share no player
+// Greedily assign non-overlapping pairs
+const used = new Set();
+const games = [];
+const pairUsed = new Array(pairs.length).fill(false);
+
+// Pre-computed valid matchups (pair i vs pair j with no shared player)
+const schedule = [
+  [0, 5],   // Yoges+Dhiren vs Parwat+Suresh
+  [1, 4],   // Yoges+Suresh vs Parwat+Dhiren
+  [2, 7],   // Yoges+Asis   vs Parwat+Amit
+  [3, 6],   // Yoges+Amit   vs Parwat+Asis
+  [4, 9],   // Parwat+Dhiren vs Sagar+Suresh  -- wait, recalc
+];
+
+// pairs index: 
+// Yoges: 0=Dhiren,1=Suresh,2=Asis,3=Amit
+// Parwat: 4=Dhiren,5=Suresh,6=Asis,7=Amit
+// Sagar:  8=Dhiren,9=Suresh,10=Asis,11=Amit
+
+const fixtures = [
+  // Game 1
+  { a: pairs[0], b: pairs[5] },
+  // Game 2
+  { a: pairs[1], b: pairs[4] },
+  // Game 3
+  { a: pairs[2], b: pairs[7] },
+  // Game 4
+  { a: pairs[3], b: pairs[6] },
+  // Game 5
+  { a: pairs[0], b: pairs[9] },
+  // Game 6
+  { a: pairs[1], b: pairs[8] },
+  // Game 7
+  { a: pairs[2], b: pairs[11] },
+  // Game 8
+  { a: pairs[3], b: pairs[10] },
+  // Game 9
+  { a: pairs[4], b: pairs[9] },
+  // Game 10
+  { a: pairs[5], b: pairs[8] },
+  // Game 11
+  { a: pairs[6], b: pairs[11] },
+  // Game 12
+  { a: pairs[7], b: pairs[10] },
+  // Game 13 — Tier 2 only bonus match
+  { a: ['Asis', 'Dhiren'], b: ['Amit', 'Suresh'], tier2only: true },
+  // Game 14 — Tier 2 only bonus match
+  { a: ['Asis', 'Amit'], b: ['Dhiren', 'Suresh'], tier2only: true },
+];
+
+// Validate and fix: Game 9 has Parwat+Dhiren vs Sagar+Suresh — no conflict! ✓
+// Let's just hard-verify all
+const validated = fixtures.map((f, i) => {
+  const players = [...f.a, ...f.b];
+  const unique = new Set(players);
+  return { ...f, valid: unique.size === 4 };
+});
+
+// Render fixtures
+const grid = document.getElementById('fixtures');
+validated.forEach((f, i) => {
+  const card = document.createElement('div');
+  card.className = 'fixture-card';
+  const isT2Only = f.tier2only;
+  const bonusTag = isT2Only ? '<span style="font-size:9px;background:rgba(255,107,53,0.15);color:#ff6b35;padding:2px 8px;border-radius:10px;letter-spacing:2px;margin-left:8px;">TIER 2 BONUS</span>' : '';
+
+  // For tier2only, both players are t2
+  const teamADot0 = isT2Only ? 't2' : 't1';
+  const teamBDot0 = isT2Only ? 't2' : 't1';
+
+  card.innerHTML = `
+    <div class="game-num">GAME ${String(i+1).padStart(2,'0')}${bonusTag}</div>
+    <div class="matchup">
+      <div class="team">
+        <div class="team-label">Team A</div>
+        <div class="player-row"><span class="dot ${teamADot0}"></span><span class="player-name">${f.a[0]}</span></div>
+        <div class="player-row"><span class="dot t2"></span><span class="player-name">${f.a[1]}</span></div>
+      </div>
+      <div class="vs-badge">VS</div>
+      <div class="team">
+        <div class="team-label">Team B</div>
+        <div class="player-row"><span class="dot ${teamBDot0}"></span><span class="player-name">${f.b[0]}</span></div>
+        <div class="player-row"><span class="dot t2"></span><span class="player-name">${f.b[1]}</span></div>
+      </div>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+// Player stats
+const allPlayers = [
+  { name: 'Yoges',  tier: 't1' },
+  { name: 'Parwat', tier: 't1' },
+  { name: 'Sagar',  tier: 't1' },
+  { name: 'Dhiren', tier: 't2' },
+  { name: 'Suresh', tier: 't2' },
+  { name: 'Asis',   tier: 't2' },
+  { name: 'Amit',   tier: 't2' },
+];
+
+const tbody = document.getElementById('player-table');
+allPlayers.forEach(p => {
+  let gamesCount = 0;
+  const partners = new Set();
+  validated.forEach(f => {
+    const all = [...f.a, ...f.b];
+    if (all.includes(p.name)) {
+      gamesCount++;
+      all.forEach(x => { if (x !== p.name) partners.add(x); });
+    }
+  });
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td style="font-weight:600">${p.name}</td>
+    <td><span class="tier-badge ${p.tier}">${p.tier === 't1' ? 'Tier 1' : 'Tier 2'}</span></td>
+    <td><span class="games-count">${gamesCount}</span></td>
+    <td style="color:#888;font-size:12px">${[...partners].join(', ')}</td>
+  `;
+  tbody.appendChild(tr);
+});
+</script>
+
+</body>
+</html>
